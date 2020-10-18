@@ -737,7 +737,7 @@ function PlexusStatusAurasExt:RegisterAuraGroup(name, _, template)
 
     for id, _ in pairs(sets.ids) do
         if not GetSpellInfo(id) then
-            print(("Removed aura with invalid spell id %s from group %s"):format(id, status))
+            print(("PlexusStatusAurasExt: Removed aura with invalid spell id %s from group %s"):format(id, status))
             self:RemoveIdFromGroup(status, id)
         end
     end
@@ -1020,27 +1020,38 @@ function PlexusStatusAurasExt:UNIT_AURA(_, unit)
 
     local isPet = isGUIDPet(guid)
 
-    for _, data in pairs(groupList) do
+    for status, data in pairs(groupList) do --luacheck:ignore 213
         if data.settings.mobAuras == isTarget then
             data.active = false
         end
     end
 
+    local LibClassicDurations
+    local UnitAura
+    if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+        LibClassicDurations = LibStub:GetLibrary("LibClassicDurations", true)
+    end
+    if LibClassicDurations then
+        LibClassicDurations:Register("PlexusStatusAurasExt")
+        UnitAura = LibClassicDurations.UnitAuraWrapper
+    end
+
     if not isTarget or (UnitExists(unit) and UnitIsEnemy("player", unit)) then
         local i = 1
-        local name, icon, count, debuffType, duration, expirationTime, source, isStealable, _, id = UnitDebuff(unit, i)
+        local name, icon, count, debuffType, duration, expirationTime, source, isStealable, _, id = UnitAura(unit, i, "HARMFUL")
         while name do
             checkAura(name, isPet, isTarget, false, icon, count, debuffType, duration, expirationTime, source, isStealable, id)
             i = i + 1
-            name, icon, count, debuffType, duration, expirationTime, source, isStealable, _, id  = UnitDebuff(unit, i)
+            name, icon, count, debuffType, duration, expirationTime, source, isStealable, _, id  = UnitAura(unit, i, "HARMFUL")
         end
 
         i = 1
-        local _, _, _, buffType, _, _, _, _, _, _ = UnitBuff(unit, i)
+        local buffType
+        name, icon, count, buffType, duration, expirationTime, source, isStealable, _, id = UnitAura(unit, i, "HELPFUL")
         while name do
             checkAura(name, isPet, isTarget, true, icon, count, buffType, duration, expirationTime, source, isStealable, id)
             i = i + 1
-            name, icon, count, buffType, duration, expirationTime, source, isStealable, _, id  = UnitBuff(unit, i)
+            name, icon, count, buffType, duration, expirationTime, source, isStealable, _, id  = UnitAura(unit, i, "HELPFUL")
         end
     end
 
