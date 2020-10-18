@@ -1,18 +1,18 @@
 --{{{ Libraries
 
-local L = LibStub("AceLocale-3.0"):GetLocale("GridStatusAurasExt")
-local GridRoster = Grid:GetModule("GridRoster")
-local GridStatus = Grid:GetModule("GridStatus")
+local L = LibStub("AceLocale-3.0"):GetLocale("PlexusStatusAurasExt")
+local PlexusRoster = Plexus:GetModule("PlexusRoster")
+local PlexusStatus = Plexus:GetModule("PlexusStatus")
 
 --}}}
 
-local GridStatusAurasExt = GridStatus:NewModule("GridStatusAurasExt", "AceTimer-3.0")
-GridStatusAurasExt.menuName = L["AurasExt"]
+local PlexusStatusAurasExt = PlexusStatus:NewModule("PlexusStatusAurasExt", "AceTimer-3.0")
+PlexusStatusAurasExt.menuName = L["AurasExt"]
 
 
 --{{{ AceDB defaults
 
-GridStatusAurasExt.defaultDB = {
+PlexusStatusAurasExt.defaultDB = {
 	auraGroups = {},
     updateInterval = 1,
     checkTargets = true,
@@ -20,11 +20,11 @@ GridStatusAurasExt.defaultDB = {
 
 --}}}
 
---GridStatusAurasExt.options = {}
+--PlexusStatusAurasExt.options = {}
 
 local auraList = {}
 local groupList = {}
-local mobGroupList = {}
+--local mobGroupList = {}
 local auraTypes = {
     Magic = {},
     Disease = {},
@@ -47,10 +47,10 @@ local function addOptionsForAuraTypes(opts, status)
             name = (L["Show Debuff type %s"]):format(L[auraType]),
             desc = (L["Enables this status for all debuffs of type %s."]):format(L[auraType]),
             get = function()
-                return GridStatusAurasExt.db.profile[status].debuffTypes[auraType]
+                return PlexusStatusAurasExt.db.profile[status].debuffTypes[auraType]
                 end,
             set = function(_, v)
-                GridStatusAurasExt:ShowDebuffTypeForStatus(v, auraType, status)
+                PlexusStatusAurasExt:ShowDebuffTypeForStatus(v, auraType, status)
             end,
             order = 146,
         }
@@ -58,7 +58,7 @@ local function addOptionsForAuraTypes(opts, status)
 end
 
 local function addOptionsForSettings(opts, status, settings)
-    for i, setting in ipairs(settings) do
+    for _, setting in ipairs(settings) do
         local set
         if setting == "ignorepets" then
             set = {
@@ -66,11 +66,11 @@ local function addOptionsForSettings(opts, status, settings)
                 name = L["Ignore Pets"],
                 desc = L["Check this if you want this aura group not to be displayed for pets."],
                 get = function()
-                    return GridStatusAurasExt.db.profile[status].ignorePets
+                    return PlexusStatusAurasExt.db.profile[status].ignorePets
                     end,
                 set = function(_, v)
-                    GridStatusAurasExt.db.profile[status].ignorePets = v
-                    GridStatusAurasExt:UpdateAllUnitAuras()
+                    PlexusStatusAurasExt.db.profile[status].ignorePets = v
+                    PlexusStatusAurasExt:UpdateAllUnitAuras()
                 end,
                 order = 141,
             }
@@ -80,14 +80,14 @@ local function addOptionsForSettings(opts, status, settings)
                 name = L["Only mine"],
                 desc = L["Activates this aura group only for auras cast by you."],
                 get = function()
-                    return GridStatusAurasExt.db.profile[status].onlyMine
+                    return PlexusStatusAurasExt.db.profile[status].onlyMine
                     end,
                 set = function(_, v)
-                    GridStatusAurasExt.db.profile[status].onlyMine = v
-                    if v and GridStatusAurasExt.db.profile[status].onlyTheirs then
-                        GridStatusAurasExt.db.profile[status].onlyTheirs = false
+                    PlexusStatusAurasExt.db.profile[status].onlyMine = v
+                    if v and PlexusStatusAurasExt.db.profile[status].onlyTheirs then
+                        PlexusStatusAurasExt.db.profile[status].onlyTheirs = false
                     end
-                    GridStatusAurasExt:UpdateAllUnitAuras()
+                    PlexusStatusAurasExt:UpdateAllUnitAuras()
                 end,
                 order = 142,
             }
@@ -97,14 +97,14 @@ local function addOptionsForSettings(opts, status, settings)
                 name = L["Only theirs"],
                 desc = L["Activates this aura group only for auras not cast by you."],
                 get = function()
-                    return GridStatusAurasExt.db.profile[status].onlyTheirs
+                    return PlexusStatusAurasExt.db.profile[status].onlyTheirs
                     end,
                 set = function(_, v)
-                    GridStatusAurasExt.db.profile[status].onlyTheirs = v
-                    if v and GridStatusAurasExt.db.profile[status].onlyMine then
-                        GridStatusAurasExt.db.profile[status].onlyMine = false
+                    PlexusStatusAurasExt.db.profile[status].onlyTheirs = v
+                    if v and PlexusStatusAurasExt.db.profile[status].onlyMine then
+                        PlexusStatusAurasExt.db.profile[status].onlyMine = false
                     end
-                    GridStatusAurasExt:UpdateAllUnitAuras()
+                    PlexusStatusAurasExt:UpdateAllUnitAuras()
                 end,
                 order = 143,
             }
@@ -114,14 +114,14 @@ local function addOptionsForSettings(opts, status, settings)
                 name = L["Only buffs"],
                 desc = L["Activates this aura group only for buffs."],
                 get = function()
-                    return GridStatusAurasExt.db.profile[status].onlyBuffs
+                    return PlexusStatusAurasExt.db.profile[status].onlyBuffs
                     end,
                 set = function(_, v)
-                    GridStatusAurasExt.db.profile[status].onlyBuffs = v
-                    if v and GridStatusAurasExt.db.profile[status].onlyDebuffs then
-                        GridStatusAurasExt.db.profile[status].onlyDebuffs = false
+                    PlexusStatusAurasExt.db.profile[status].onlyBuffs = v
+                    if v and PlexusStatusAurasExt.db.profile[status].onlyDebuffs then
+                        PlexusStatusAurasExt.db.profile[status].onlyDebuffs = false
                     end
-                    GridStatusAurasExt:UpdateAllUnitAuras()
+                    PlexusStatusAurasExt:UpdateAllUnitAuras()
                 end,
                 order = 144,
             }
@@ -131,14 +131,14 @@ local function addOptionsForSettings(opts, status, settings)
                 name = L["Only debuffs"],
                 desc = L["Activates this aura group only for debuffs."],
                 get = function()
-                    return GridStatusAurasExt.db.profile[status].onlyDebuffs
+                    return PlexusStatusAurasExt.db.profile[status].onlyDebuffs
                     end,
                 set = function(_, v)
-                    GridStatusAurasExt.db.profile[status].onlyDebuffs = v
-                    if v and GridStatusAurasExt.db.profile[status].onlyBuffs then
-                        GridStatusAurasExt.db.profile[status].onlyBuffs = false
+                    PlexusStatusAurasExt.db.profile[status].onlyDebuffs = v
+                    if v and PlexusStatusAurasExt.db.profile[status].onlyBuffs then
+                        PlexusStatusAurasExt.db.profile[status].onlyBuffs = false
                     end
-                    GridStatusAurasExt:UpdateAllUnitAuras()
+                    PlexusStatusAurasExt:UpdateAllUnitAuras()
                 end,
                 order = 145,
             }
@@ -148,11 +148,11 @@ local function addOptionsForSettings(opts, status, settings)
                 name = L["All missing"],
                 desc = L["Activates this aura group only if all of its auras are missing."],
                 get = function()
-                    return GridStatusAurasExt.db.profile[status].allMissing
+                    return PlexusStatusAurasExt.db.profile[status].allMissing
                     end,
                 set = function(_, v)
-                    GridStatusAurasExt.db.profile[status].allMissing = v
-                    GridStatusAurasExt:UpdateAllUnitAuras()
+                    PlexusStatusAurasExt.db.profile[status].allMissing = v
+                    PlexusStatusAurasExt:UpdateAllUnitAuras()
                 end,
                 order = 146,
             }
@@ -162,11 +162,11 @@ local function addOptionsForSettings(opts, status, settings)
                 name = L["Exclude auras"],
                 desc = L["This option tells this group to use auras added by name or id as a blacklist (excludes them from being shown). Makes only sense together with showing debuffs by types."],
                 get = function()
-                    return GridStatusAurasExt.db.profile[status].asBlackList
+                    return PlexusStatusAurasExt.db.profile[status].asBlackList
                     end,
                 set = function(_, v)
-                    GridStatusAurasExt.db.profile[status].asBlackList = v
-                    GridStatusAurasExt:UpdateAllUnitAuras()
+                    PlexusStatusAurasExt.db.profile[status].asBlackList = v
+                    PlexusStatusAurasExt:UpdateAllUnitAuras()
                 end,
                 order = 147,
             }
@@ -182,7 +182,7 @@ local function addOptionsForSettings(opts, status, settings)
                 name = L["New aura by ID"],
                 desc = L["Adds a new Aura with the passed ID to this group"],
                 get = function() return "" end,
-                set = function(_, v) GridStatusAurasExt:NewAuraIDToGroup(status, v) end,
+                set = function(_, v) PlexusStatusAurasExt:NewAuraIDToGroup(status, v) end,
                 usage = L["<spell id>"],
                 order = 181,
                 validate = function(_, v) return tonumber(v) and (GetSpellInfo(tonumber(v)) ~= nil) end,
@@ -193,7 +193,7 @@ local function addOptionsForSettings(opts, status, settings)
                 name = L["New aura by name"],
                 desc = L["Adds a new Aura with the passed name to this group"],
                 get = function() return "" end,
-                set = function(_, v) GridStatusAurasExt:NewAuraNameToGroup(status, v) end,
+                set = function(_, v) PlexusStatusAurasExt:NewAuraNameToGroup(status, v) end,
                 usage = L["<aura name>"],
                 order = 182,
             }
@@ -201,13 +201,13 @@ local function addOptionsForSettings(opts, status, settings)
             set = {
                 type = "toggle",
                 name = L["Color by magic type"],
-                desc = L["Colors the status by the magic type of the displayed aura. You can edit the colors under \"Grid->Status->Colors\""],
+                desc = L["Colors the status by the magic type of the displayed aura. You can edit the colors under \"Plexus->Status->Colors\""],
                 get = function()
-                    return GridStatusAurasExt.db.profile[status].colorByType
+                    return PlexusStatusAurasExt.db.profile[status].colorByType
                     end,
                 set = function(_, v)
-                    GridStatusAurasExt.db.profile[status].colorByType = v
-                    GridStatusAurasExt:UpdateAllUnitAuras()
+                    PlexusStatusAurasExt.db.profile[status].colorByType = v
+                    PlexusStatusAurasExt:UpdateAllUnitAuras()
                 end,
                 order = 148,
             }
@@ -217,11 +217,11 @@ local function addOptionsForSettings(opts, status, settings)
                 name = L["Check targeted enemy"],
                 desc = L["If this option is enabled the targeted enemies auras are checked instead of the units auras itself."],
                 get = function()
-                    return GridStatusAurasExt.db.profile[status].mobAuras
+                    return PlexusStatusAurasExt.db.profile[status].mobAuras
                     end,
                 set = function(_, v)
-                    GridStatusAurasExt.db.profile[status].mobAuras = v
-                    GridStatusAurasExt:UpdateAllUnitAuras()
+                    PlexusStatusAurasExt.db.profile[status].mobAuras = v
+                    PlexusStatusAurasExt:UpdateAllUnitAuras()
                 end,
                 order = 149,
             }
@@ -253,7 +253,7 @@ local templates = {
     },
     ["bossdebuffs"] = {
         name = L["Simple aura list"],
-        desc = L["Use this template if you only want to define a simple list of auras which should be shown in grid (e.g. a list of raid debuffs)."],
+        desc = L["Use this template if you only want to define a simple list of auras which should be shown in Plexus (e.g. a list of raid debuffs)."],
         consts = function(s)
             s.allMissing = false
             s.onlyTheirs = false
@@ -310,7 +310,7 @@ local templates = {
                     name = L["Exclude aura by ID"],
                     desc = L["Excludes the Aura with the passed ID from this group"],
                     get = function() return "" end,
-                    set = function(_, v) GridStatusAurasExt:NewAuraIDToGroup(status, v) end,
+                    set = function(_, v) PlexusStatusAurasExt:NewAuraIDToGroup(status, v) end,
                     usage = L["<spell id>"],
                     order = 181,
                 },
@@ -319,7 +319,7 @@ local templates = {
                     name = L["Exclude aura by name"],
                     desc = L["Excludes the Aura with the passed name from this group"],
                     get = function() return "" end,
-                    set = function(_, v) GridStatusAurasExt:NewAuraNameToGroup(status, v) end,
+                    set = function(_, v) PlexusStatusAurasExt:NewAuraNameToGroup(status, v) end,
                     usage = L["<aura name>"],
                     order = 182,
                 },
@@ -365,17 +365,17 @@ local options = {
             name = L["Check target auras"],
             desc = L["You can disable this option to improve performance (maybe) and if you don't need to track mob auras."],
             get = function()
-                return GridStatusAurasExt.db.profile.checkTargets
+                return PlexusStatusAurasExt.db.profile.checkTargets
                 end,
             set = function(_, v)
-                GridStatusAurasExt.db.profile.checkTargets = v
+                PlexusStatusAurasExt.db.profile.checkTargets = v
                 if v then
-                    GridStatusAurasExt:RegisterEvent("UNIT_TARGET")
-                    GridStatusAurasExt.gsaTimer = GridStatusAurasExt:ScheduleRepeatingTimer("GSAECheckTargets", GridStatusAurasExt.db.profile.updateInterval)
-                    assert(GridStatusAurasExt.gsaTimer)
+                    PlexusStatusAurasExt:RegisterEvent("UNIT_TARGET")
+                    PlexusStatusAurasExt.gsaTimer = PlexusStatusAurasExt:ScheduleRepeatingTimer("GSAECheckTargets", PlexusStatusAurasExt.db.profile.updateInterval)
+                    assert(PlexusStatusAurasExt.gsaTimer)
                 else
-                    GridStatusAurasExt:UnregisterEvent("UNIT_TARGET")
-                    GridStatusAurasExt:CancelTimer(GridStatusAurasExt.gsaTimer)
+                    PlexusStatusAurasExt:UnregisterEvent("UNIT_TARGET")
+                    PlexusStatusAurasExt:CancelTimer(PlexusStatusAurasExt.gsaTimer)
                 end
             end,
             order = 6,
@@ -384,8 +384,8 @@ local options = {
             type = "range",
             name = L["Target update interval"],
             desc = L["Defines the interval in which to check the targeted units auras."],
-            get = function() return GridStatusAurasExt.db.profile.updateInterval end,
-            set = function(_, v) GridStatusAurasExt:ChangeUpdateInterval(v) end,
+            get = function() return PlexusStatusAurasExt.db.profile.updateInterval end,
+            set = function(_, v) PlexusStatusAurasExt:ChangeUpdateInterval(v) end,
             min = 0.01,
             max = 1,
             step = 0.01,
@@ -400,7 +400,7 @@ local options = {
                 return ""
                 end,
             set = function(_,v)
-                GridStatusAurasExt:NewAuraGroup(v)
+                PlexusStatusAurasExt:NewAuraGroup(v)
             end,
             order = 10,
             usage = "",
@@ -420,9 +420,9 @@ local options = {
     },
 }
 
-Grid.options.args["aurasext"] = options
+Plexus.options.args["aurasext"] = options --luacheck: ignore 112
 
-GridStatus.options.args.color.args["magictypes"] = {
+PlexusStatus.options.args.color.args["magictypes"] = {
     type = "group",
     name = L["Magic type colors"],
     desc = L["Color for magic types (poison, magic, etc)."],
@@ -433,13 +433,13 @@ GridStatus.options.args.color.args["magictypes"] = {
             desc = L["The color for things with no/unknown magic type."],
             order = 100,
             get = function ()
-                      local c = GridStatusAurasExt.db.profile.magicColors["none"]
+                      local c = PlexusStatusAurasExt.db.profile.magicColors["none"]
                       return c.r, c.g, c.b, c.a
                   end,
             set = function (_, r, g, b, a)
-                      local c = GridStatusAurasExt.db.profile.magicColors["none"]
+                      local c = PlexusStatusAurasExt.db.profile.magicColors["none"]
                       c.r, c.g, c.b, c.a = r, g, b, a
-                      GridStatus:TriggerEvent("Grid_ColorsChanged")
+                      PlexusStatus:TriggerEvent("Plexus_ColorsChanged")
                   end,
             hasAlpha = true,
         },
@@ -450,24 +450,23 @@ local settings
 
 
 
-function GridStatusAurasExt:OnInitialize()
+function PlexusStatusAurasExt:OnInitialize()
 	self.super.OnInitialize(self)
     settings = self.db.profile
     --[[
-    GridStatus.options.args["aurasext"] = {
+    PlexusStatus.options.args["aurasext"] = {
         type = "group",
         name = L["AurasExt"],
         desc = L["AurasExt"],
         args = {}
     }
-    self.options = GridStatus.options.args["aurasext"]
+    self.options = PlexusStatus.options.args["aurasext"]
     ]]
-    
-    
+
 
     for name, data in pairs(templates) do
         if name ~= "none" then
-            Grid.options.args["aurasext"].args["new"..name] = {
+            Plexus.options.args["aurasext"].args["new"..name] = { --luacheck: ignore 112
                 type = "input",
                 name = string.format(L["New %s template"], data.name),
                 desc = string.format(L["Creates a new status for a group of auras using the %s template. %s"], data.name, data.desc),
@@ -475,7 +474,7 @@ function GridStatusAurasExt:OnInitialize()
                     return ""
                     end,
                 set = function(_, v)
-                    GridStatusAurasExt:NewAuraGroup(v, name)
+                    PlexusStatusAurasExt:NewAuraGroup(v, name)
                 end,
                 order = 10,
                 usage = "",
@@ -489,21 +488,21 @@ function GridStatusAurasExt:OnInitialize()
     end
     MAGIC_TYPE_COLORS = settings.magicColors
 
-    for magic, data in pairs(MAGIC_TYPE_COLORS) do
+    for magic, _ in pairs(MAGIC_TYPE_COLORS) do
         if magic ~= "none" then
-            GridStatus.options.args.color.args["magictypes"].args[magic] = {
+            PlexusStatus.options.args.color.args["magictypes"].args[magic] = {
                 type = "color",
                 name = L[magic],
                 desc = string.format(L["The color for magic type %s."], L[magic]),
                 order = 100,
                 get = function ()
-                          local c = GridStatusAurasExt.db.profile.magicColors[magic]
+                          local c = PlexusStatusAurasExt.db.profile.magicColors[magic]
                           return c.r, c.g, c.b, c.a
                       end,
                 set = function (_, r, g, b, a)
-                          local c = GridStatusAurasExt.db.profile.magicColors[magic]
+                          local c = PlexusStatusAurasExt.db.profile.magicColors[magic]
                           c.r, c.g, c.b, c.a = r, g, b, a
-                          GridStatus:TriggerEvent("Grid_ColorsChanged")
+                          PlexusStatus:TriggerEvent("Plexus_ColorsChanged")
                       end,
                 hasAlpha = true,
             }
@@ -515,13 +514,13 @@ function GridStatusAurasExt:OnInitialize()
     end
 end
 
-function GridStatusAurasExt:OnEnable()
+function PlexusStatusAurasExt:OnEnable()
     self.super.OnEnable(self)
-    
+
 	--self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     self:RegisterEvent("UNIT_AURA")
-    self:RegisterMessage("Grid_UnitJoined")
-    self:RegisterMessage("Grid_ColorsChanged")
+    self:RegisterMessage("Plexus_UnitJoined")
+    self:RegisterMessage("Plexus_ColorsChanged")
 
     if settings.checkTargets then
         self:RegisterEvent("UNIT_TARGET")
@@ -533,7 +532,7 @@ function GridStatusAurasExt:OnEnable()
     self:UpdateAllUnitAuras()
 end
 
-function GridStatusAurasExt:ChangeUpdateInterval(interval)
+function PlexusStatusAurasExt:ChangeUpdateInterval(interval)
     settings.updateInterval = interval
     self:CancelTimer(self.gsaTimer)
     if settings.checkTargets then
@@ -542,35 +541,35 @@ function GridStatusAurasExt:ChangeUpdateInterval(interval)
     end
 end
 
-function GridStatusAurasExt:GSAECheckTargets()
-	for guid, unitid in GridRoster:IterateRoster() do
+function PlexusStatusAurasExt:GSAECheckTargets()
+	for _, unitid in PlexusRoster:IterateRoster() do
         self:UNIT_AURA(nil, unitid.."target")
 	end
 end
 
-function GridStatusAurasExt:UNIT_TARGET(_, unitid)
-    if GridRoster:IsGUIDInRaid(UnitGUID(unitid)) then
+function PlexusStatusAurasExt:UNIT_TARGET(_, unitid)
+    if PlexusRoster:IsGUIDInRaid(UnitGUID(unitid)) then
         self:UNIT_AURA(nil, unitid.."target")
     end
 end
 
-function GridStatusAurasExt:Grid_UnitJoined(_, guid, unitid)
+function PlexusStatusAurasExt:Plexus_UnitJoined(_, _, unitid)
 	self:UNIT_AURA(nil, unitid)
     self:UNIT_AURA(nil, unitid.."target")
 end
 
-function GridStatusAurasExt:Grid_ColorsChanged()
+function PlexusStatusAurasExt:Plexus_ColorsChanged()
 	self:UpdateAllUnitAuras()
 end
 
-function GridStatusAurasExt:SetAuraGroupTemplate(status, template)
+function PlexusStatusAurasExt:SetAuraGroupTemplate(status, template)
     local prevTemplate = settings[status].template
 
     local opts = self.options.args[status].args
 
     if prevTemplate then
         local templateOpts = templates[prevTemplate].getOpts(status)
-        for optName, optData in pairs(templateOpts) do
+        for optName, _ in pairs(templateOpts) do
             opts[optName] = nil
         end
     end
@@ -589,9 +588,9 @@ function GridStatusAurasExt:SetAuraGroupTemplate(status, template)
     self:UpdateAllUnitAuras()
 end
 
-function GridStatusAurasExt:OnStatusEnable(status)
+function PlexusStatusAurasExt:OnStatusEnable(status)
     local sets = settings[status]
-    
+
     for id, _ in pairs(sets.ids) do
         self:RegisterId(status, id)
     end
@@ -610,7 +609,7 @@ function GridStatusAurasExt:OnStatusEnable(status)
     self:UpdateAllUnitAuras()
 end
 
-function GridStatusAurasExt:OnStatusDisable(status)
+function PlexusStatusAurasExt:OnStatusDisable(status)
     local sets = settings[status]
     for id, _ in pairs(sets.ids) do
         self:UnregisterId(status, id)
@@ -627,12 +626,12 @@ function GridStatusAurasExt:OnStatusDisable(status)
         end
     end
 
-    for guid, unitid in GridRoster:IterateRoster() do
+    for guid, _ in PlexusRoster:IterateRoster() do
         self.core:SendStatusLost(guid, status)
     end
 end
 
-function GridStatusAurasExt:RemoveAuraGroup(name)
+function PlexusStatusAurasExt:RemoveAuraGroup(name)
     local status = "status_"..name
     self:UnregisterStatus(status)
 
@@ -653,7 +652,7 @@ function GridStatusAurasExt:RemoveAuraGroup(name)
     settings.auraGroups[name] = nil
 end
 
-function GridStatusAurasExt:RegisterAuraGroup(name, data, template)
+function PlexusStatusAurasExt:RegisterAuraGroup(name, _, template)
     local status = "status_"..name
 
     local sets = settings[status]
@@ -695,7 +694,6 @@ function GridStatusAurasExt:RegisterAuraGroup(name, data, template)
             name = L["Remove"],
             desc = L["Remove an aura from the group."],
             args = {
-                
             },
         },
         ["templates"] = {
@@ -715,7 +713,7 @@ function GridStatusAurasExt:RegisterAuraGroup(name, data, template)
             },
         },
     }
-    
+
     local orderCnt = 3
 
     for templateName, data in pairs(templates) do
@@ -743,7 +741,7 @@ function GridStatusAurasExt:RegisterAuraGroup(name, data, template)
             self:RemoveIdFromGroup(status, id)
         end
     end
-    
+
     if sets.enable then
         for id, _ in pairs(sets.ids) do
             self:RegisterId(status, id)
@@ -762,14 +760,14 @@ function GridStatusAurasExt:RegisterAuraGroup(name, data, template)
     end
 end
 
-function GridStatusAurasExt:UnregisterName(status, aura)
+function PlexusStatusAurasExt:UnregisterName(status, aura) --luacheck: ignore 212
     local auraData = auraList[aura]
     if auraData then
         auraData[status] = nil
     end
 end
 
-function GridStatusAurasExt:RegisterName(status, aura)
+function PlexusStatusAurasExt:RegisterName(status, aura)
 
     local auraData = auraList[aura]
     if not auraData then
@@ -809,7 +807,7 @@ function GridStatusAurasExt:RegisterName(status, aura)
     }
 end
 
-function GridStatusAurasExt:ShowDebuffTypeForStatus(show, debuffType, status)
+function PlexusStatusAurasExt:ShowDebuffTypeForStatus(show, debuffType, status)
     settings[status].debuffTypes[debuffType] = show
 
     if show then
@@ -821,17 +819,17 @@ function GridStatusAurasExt:ShowDebuffTypeForStatus(show, debuffType, status)
     self:UpdateAllUnitAuras()
 end
 
-function GridStatusAurasExt:UnregisterId(status, id)
-    local aura, _, icon = GetSpellInfo(id)
+function PlexusStatusAurasExt:UnregisterId(status, id) --luacheck: ignore 212
+    local aura = GetSpellInfo(id)
     local auraData = auraList[aura]
     if auraData then
         auraData[status] = nil
     end
 end
 
-function GridStatusAurasExt:RegisterId(status, id)
-    local aura, _, icon = GetSpellInfo(id)
-    
+function PlexusStatusAurasExt:RegisterId(status, id)
+    local aura = GetSpellInfo(id)
+
     local auraData = auraList[aura]
     if not auraData then
         auraData = {}
@@ -881,7 +879,7 @@ function GridStatusAurasExt:RegisterId(status, id)
     }
 end
 
-function GridStatusAurasExt:RemoveIdFromGroup(status, id)
+function PlexusStatusAurasExt:RemoveIdFromGroup(status, id)
     local opts = self.options.args[status].args
     opts[id] = nil
     opts.remove.args[id] = nil
@@ -892,36 +890,36 @@ function GridStatusAurasExt:RemoveIdFromGroup(status, id)
     self:UpdateAllUnitAuras()
 end
 
-function GridStatusAurasExt:RemoveNameFromGroup(status, aura)
+function PlexusStatusAurasExt:RemoveNameFromGroup(status, aura)
     local opts = self.options.args[status].args
     opts[aura] = nil
     opts.remove.args[aura] = nil
     settings[status].names[aura] = nil
-    
+
     self:UnregisterName(status, aura)
-    
+
     self:UpdateAllUnitAuras()
 end
 
-function GridStatusAurasExt:NewAuraIDToGroup(status, id)
+function PlexusStatusAurasExt:NewAuraIDToGroup(status, id)
     settings[status].ids[id] = true
     self:RegisterId(status, id)
     self:UpdateAllUnitAuras()
 end
 
-function GridStatusAurasExt:NewAuraNameToGroup(status, aura)
+function PlexusStatusAurasExt:NewAuraNameToGroup(status, aura)
     settings[status].names[aura] = true
     self:RegisterName(status, aura)
     self:UpdateAllUnitAuras()
 end
 
-function GridStatusAurasExt:NewAuraGroup(name, template)
+function PlexusStatusAurasExt:NewAuraGroup(name, template)
     settings.auraGroups[name] = true
     self:RegisterAuraGroup(name, settings.auraGroups[name], template)
 end
 
-function GridStatusAurasExt:UpdateAllUnitAuras()
-	for guid, unitid in GridRoster:IterateRoster() do
+function PlexusStatusAurasExt:UpdateAllUnitAuras()
+	for _, unitid in PlexusRoster:IterateRoster() do
 		self:UNIT_AURA(nil, unitid)
         self:UNIT_AURA(nil, unitid.."target")
 	end
@@ -951,7 +949,7 @@ local function getTargeter(unit)
     return TARGETER[unit]
 end
 
-local function isAuraInGroup(group, name, icon, count, auraType, duration, expirationTime, source, isStealable, isMine, isTarget, isPet, isBuff, id)
+local function isAuraInGroup(group, _, _, _, _, _, _, _, _, isMine, isTarget, isPet, isBuff, id)
     return not (isPet and group.settings.ignorePets)
            and isTarget == group.settings.mobAuras
            and not group.settings.asBlackList
@@ -1005,10 +1003,10 @@ local function checkAura(name, isPet, isTarget, isBuff, icon, count, auraType, d
 end
 
 local function isGUIDPet(guid)
-    return (GridRoster:GetOwnerUnitidByGUID(guid) ~= nil)
+    return (PlexusRoster:GetOwnerUnitidByGUID(guid) ~= nil)
 end
 
-function GridStatusAurasExt:UNIT_AURA(_, unit)
+function PlexusStatusAurasExt:UNIT_AURA(_, unit)
     local guid = UnitGUID(unit)
     local isTarget = false
     local targeter = getTargeter(unit)
@@ -1016,13 +1014,13 @@ function GridStatusAurasExt:UNIT_AURA(_, unit)
         guid = UnitGUID(targeter)
         isTarget = true
     end
-    if not GridRoster:IsGUIDInRaid(guid) then
+    if not PlexusRoster:IsGUIDInRaid(guid) then
         return
     end
-    
+
     local isPet = isGUIDPet(guid)
 
-    for status, data in pairs(groupList) do
+    for _, data in pairs(groupList) do
         if data.settings.mobAuras == isTarget then
             data.active = false
         end
@@ -1038,7 +1036,7 @@ function GridStatusAurasExt:UNIT_AURA(_, unit)
         end
 
         i = 1
-        local name, icon, count, buffType, duration, expirationTime, source, isStealable, _, id = UnitBuff(unit, i)
+        local _, _, _, buffType, _, _, _, _, _, _ = UnitBuff(unit, i)
         while name do
             checkAura(name, isPet, isTarget, true, icon, count, buffType, duration, expirationTime, source, isStealable, id)
             i = i + 1

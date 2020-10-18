@@ -1,4 +1,4 @@
-local L = LibStub("AceLocale-3.0"):NewLocale("GridStatusAurasExt", "enUS", true)
+local L = LibStub("AceLocale-3.0"):NewLocale("PlexusStatusAurasExt", "enUS", true)
 
 L["AurasExt"] = true
 L["New aura group"] = true
@@ -46,7 +46,7 @@ L["Disease"] = true
 L["Exclude aura by ID"] = true
 L["Excludes the Aura with the passed ID from this group"] = true
 L["Exclude aura by name"] = true
-L["Excludes the Aura with the passed name from this group"] = true  
+L["Excludes the Aura with the passed name from this group"] = true
 L["Only buffs"] = true
 L["Activates this aura group only for buffs."] = true
 L["Only debuffs"] = true
