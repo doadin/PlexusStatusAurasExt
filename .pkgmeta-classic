@@ -1,0 +1,15 @@
+package-as: PlexusStatusAurasExt
+
+enable-nolib-creation: yes
+
+externals:
+   Libs/AceLocale-3.0: https://repos.curseforge.com/wow/ace3/trunk/AceLocale-3.0
+   Libs/LibClassicDurations: https://repos.curseforge.com/wow/libclassicdurations
+
+ignore:
+  - .luacheckrc
+  - .travis.yml
+  - appveyor.yml
+  - README.md
+  - .github/ISSUE_TEMPLATE/bug_report.md
+  - .github/ISSUE_TEMPLATE/feature_request.md
