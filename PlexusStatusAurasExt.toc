@@ -1,15 +1,22 @@
-## Interface: 80000
-## Title: GridStatusAurasExt
+#@retail@
+## Interface: 90001
+#@end-retail@
+#@non-retail@
+## Interface: 11305
+#@end-non-retail@
+## Version: @project-version@
+## Title: PlexusStatusAurasExt
 ## Notes: Provides extended aura status settings.
-## Author: Julith
-## Version: 0.73
+## Author: Doadin
+## X-Credits: Julith
 ## X-Category: UnitFrame
-## Dependencies: Grid
+## Dependencies: Plexus
 ## OptionalDeps: Ace3
+## X-Curse-Project-ID: 413886
 
 #@no-lib-strip@
 Libs\AceLocale-3.0\AceLocale-3.0.lua
 #@end-no-lib-strip@
 
 enUS.lua
-GridStatusAurasExt.lua
+PlexusStatusAurasExt.lua
