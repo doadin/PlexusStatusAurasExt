@@ -1027,7 +1027,7 @@ function PlexusStatusAurasExt:UNIT_AURA(_, unit)
     end
 
     local LibClassicDurations
-    local UnitAura
+    local UnitAura = _G.UnitAura
     if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
         LibClassicDurations = LibStub:GetLibrary("LibClassicDurations", true)
     end
