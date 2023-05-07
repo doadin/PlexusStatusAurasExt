@@ -13,6 +13,8 @@
 ## OptionalDeps: Ace3
 ## X-Curse-Project-ID: 413886
 
+## IconTexture: Interface\AddOns\Plexus\Media\icon
+
 #@no-lib-strip@
 Libs\AceLocale-3.0\AceLocale-3.0.lua
 #@end-no-lib-strip@
