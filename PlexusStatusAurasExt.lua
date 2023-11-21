@@ -1026,16 +1026,6 @@ function PlexusStatusAurasExt:UNIT_AURA(_, unit)
         end
     end
 
-    local LibClassicDurations
-    local UnitAura = _G.UnitAura
-    if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
-        LibClassicDurations = LibStub:GetLibrary("LibClassicDurations", true)
-    end
-    if LibClassicDurations then
-        LibClassicDurations:Register("PlexusStatusAurasExt")
-        UnitAura = LibClassicDurations.UnitAuraWrapper
-    end
-
     if not isTarget or (UnitExists(unit) and UnitIsEnemy("player", unit)) then
         local i = 1
         local name, icon, count, debuffType, duration, expirationTime, source, isStealable, _, id = UnitAura(unit, i, "HARMFUL")

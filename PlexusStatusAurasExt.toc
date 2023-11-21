@@ -18,9 +18,6 @@
 #@no-lib-strip@
 Libs\AceLocale-3.0\AceLocale-3.0.lua
 #@end-no-lib-strip@
-#@non-retail@
-Libs\LibClassicDurations\LibClassicDurations.xml
-#@end-non-retail@
 
 enUS.lua
 PlexusStatusAurasExt.lua
