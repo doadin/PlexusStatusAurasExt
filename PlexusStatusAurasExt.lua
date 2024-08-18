@@ -4,6 +4,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("PlexusStatusAurasExt")
 local PlexusRoster = Plexus:GetModule("PlexusRoster")
 local PlexusStatus = Plexus:GetModule("PlexusStatus")
 local UnitAura = C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura
+local GetAuraDataByAuraInstanceID = C_UnitAuras and C_UnitAuras.GetAuraDataByAuraInstanceID
+local ForEachAura = AuraUtil and AuraUtil.ForEachAura
 
 --}}}
 
@@ -1007,8 +1009,12 @@ local function isGUIDPet(guid)
     return (PlexusRoster:GetOwnerUnitidByGUID(guid) ~= nil)
 end
 
-function PlexusStatusAurasExt:UNIT_AURA(_, unit)
+local unitAuras
+function PlexusStatusAurasExt:UNIT_AURA(_, unit, updatedAuras)
     local guid = UnitGUID(unit)
+    if not guid then
+        return
+    end
     local isTarget = false
     local targeter = getTargeter(unit)
     if targeter and targeter ~= "" then
@@ -1027,60 +1033,127 @@ function PlexusStatusAurasExt:UNIT_AURA(_, unit)
         end
     end
 
+    if not unitAuras then
+        unitAuras = {}
+    end
+
     if not isTarget or (UnitExists(unit) and UnitIsEnemy("player", unit)) then
-        if C_UnitAuras then
-            local i = 1
-            --local name, icon, count, debuffType, duration, expirationTime, source, isStealable, _, id = UnitAura(unit, i, "HARMFUL")
-            local auraData = UnitAura(unit, i, "HARMFUL")
-            local name, icon, count, debuffType, duration, expirationTime, source, isStealable, _, id
-            name = auraData and auraData.name
-            icon = auraData and auraData.icon
-            count = auraData and auraData.applications
-            debuffType = auraData and auraData.dispelName
-            duration = auraData and auraData.duration
-            expirationTime = auraData and auraData.expirationTime
-            source = auraData and auraData.sourceUnit
-            isStealable = auraData and auraData.isStealable
-            id = auraData and auraData.spellId
-            while name do
-                checkAura(name, isPet, isTarget, false, icon, count, debuffType, duration, expirationTime, source, isStealable, id)
-                i = i + 1
-                --name, icon, count, debuffType, duration, expirationTime, source, isStealable, _, id  = UnitAura(unit, i, "HARMFUL")
+        -- Full Update
+        if (updatedAuras and updatedAuras.isFullUpdate) then --or (not updatedAuras.isFullUpdate and (not updatedAuras.addedAuras and not updatedAuras.updatedAuraInstanceIDs and not updatedAuras.removedAuraInstanceIDs)) then
+            local unitauraInfo = {}
+            if (AuraUtil.ForEachAura) then
+                ForEachAura(unit, "HELPFUL", nil,
+                    function(aura)
+                        if aura and aura.auraInstanceID then
+                            unitauraInfo[aura.auraInstanceID] = aura
+                        end
+                    end,
+                true)
+                ForEachAura(unit, "HARMFUL", nil,
+                    function(aura)
+                        if aura and aura.auraInstanceID then
+                            unitauraInfo[aura.auraInstanceID] = aura
+                        end
+                    end,
+                true)
+            else
+                for i = 0, 40 do
+                    local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL")
+                    if auraData then
+                        unitauraInfo[auraData.auraInstanceID] = auraData
+                    end
+                end
+                for i = 0, 40 do
+                    local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
+                    if auraData then
+                        unitauraInfo[auraData.auraInstanceID] = auraData
+                    end
+                end
             end
-
-            i = 1
-            local buffType
-            auraData = UnitAura(unit, i, "HELPFUL")
-            name = auraData and auraData.name
-            icon = auraData and auraData.icon
-            count = auraData and auraData.applications
-            buffType = auraData and auraData.dispelName
-            duration = auraData and auraData.duration
-            expirationTime = auraData and auraData.expirationTime
-            source = auraData and auraData.sourceUnit
-            isStealable = auraData and auraData.isStealable
-            id = auraData and auraData.spellId
-            while name do
-                checkAura(name, isPet, isTarget, true, icon, count, buffType, duration, expirationTime, source, isStealable, id)
-                i = i + 1
-                --name, icon, count, buffType, duration, expirationTime, source, isStealable, _, id  = UnitAura(unit, i, "HELPFUL")
+            if unitAuras[guid] then
+                for _, info in pairs(unitAuras[guid]) do
+                    unitAuras[guid][info.auraInstanceID] = nil
+                end
             end
-        else
-            local i = 1
-            local name, icon, count, debuffType, duration, expirationTime, source, isStealable, _, id = UnitAura(unit, i, "HARMFUL")
-            while name do
-                checkAura(name, isPet, isTarget, false, icon, count, debuffType, duration, expirationTime, source, isStealable, id)
-                i = i + 1
-                name, icon, count, debuffType, duration, expirationTime, source, isStealable, _, id  = UnitAura(unit, i, "HARMFUL")
+            for _, v in pairs(unitauraInfo) do
+                if not unitAuras[guid] then
+                    unitAuras[guid] = {}
+                end
+                if v.spellId == 367364 then
+                    v.name = "Echo: Reversion"
+                end
+                if v.spellId == 376788 then
+                    v.name = "Echo: Dream Breath"
+                end
+                unitAuras[guid][v.auraInstanceID] = v
             end
-
-            i = 1
-            local buffType
-            name, icon, count, buffType, duration, expirationTime, source, isStealable, _, id = UnitAura(unit, i, "HELPFUL")
-            while name do
-                checkAura(name, isPet, isTarget, true, icon, count, buffType, duration, expirationTime, source, isStealable, id)
-                i = i + 1
-                name, icon, count, buffType, duration, expirationTime, source, isStealable, _, id  = UnitAura(unit, i, "HELPFUL")
+        end
+        if updatedAuras and updatedAuras.addedAuras then
+            for _, aura in pairs(updatedAuras.addedAuras) do
+                if aura.spellId == 367364 then
+                    aura.name = "Echo: Reversion"
+                end
+                if aura.spellId == 376788 then
+                    aura.name = "Echo: Dream Breath"
+                end
+                if guid and not unitAuras[guid] then
+                    unitAuras[guid] = {}
+                end
+                unitAuras[guid][aura.auraInstanceID] = aura
+           end
+        end
+        if updatedAuras and updatedAuras.updatedAuraInstanceIDs then
+            for _, auraInstanceID in ipairs(updatedAuras.updatedAuraInstanceIDs) do
+                local auraTable = GetAuraDataByAuraInstanceID(unit, auraInstanceID)
+                if auraTable and auraTable.spellId == 367364 then
+                    auraTable.name = "Echo: Reversion"
+                end
+                if auraTable and auraTable.spellId == 376788 then
+                    auraTable.name = "Echo: Dream Breath"
+                end
+                if not auraTable then
+                    if unitAuras[guid] and unitAuras[guid][auraInstanceID] then
+                        unitAuras[guid][auraInstanceID] = nil
+                    end
+                end
+                if auraTable then
+                    if guid and not unitAuras[guid] then
+                        unitAuras[guid] = {}
+                    end
+                    unitAuras[guid][auraInstanceID] = auraTable
+                end
+            end
+        end
+        if updatedAuras and updatedAuras.removedAuraInstanceIDs then
+            for _, auraInstanceIDTable in ipairs(updatedAuras.removedAuraInstanceIDs) do
+                if unitAuras[guid] and unitAuras[guid][auraInstanceIDTable] then
+                    unitAuras[guid][auraInstanceIDTable] = nil
+                end
+            end
+        end
+        if unitAuras[guid] then
+            local numAuras = 0
+            --id, info
+            for id, info in pairs(unitAuras[guid]) do
+                local auraTable = GetAuraDataByAuraInstanceID(unit, id)
+                if not auraTable then
+                    unitAuras[guid][id] = nil
+                end
+                numAuras = numAuras + 1
+                local buffdebufftype = info and info.isHarmful and true or info and info.isHelpful and false
+                local name = info and info.name
+                local icon = info and info.icon
+                local count = info and info.applications
+                local buffType = info and info.dispelName
+                local duration = info and info.duration
+                local expirationTime = info and info.expirationTime
+                local source = info and info.sourceUnit
+                local isStealable = info and info.isStealable
+                local spellid = info and info.spellId
+                checkAura(name, isPet, isTarget, buffdebufftype, icon, count, buffType, duration, expirationTime, source, isStealable, spellid)
+            end
+            if guid and numAuras == 0 then
+                unitAuras[guid] = nil
             end
         end
     end
