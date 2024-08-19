@@ -1140,7 +1140,7 @@ function PlexusStatusAurasExt:UNIT_AURA(_, unit, updatedAuras)
                     unitAuras[guid][id] = nil
                 end
                 numAuras = numAuras + 1
-                local buffdebufftype = info and info.isHarmful and true or info and info.isHelpful and false
+                local isBuff = info and info.isHarmful and false or info and info.isHelpful and true
                 local name = info and info.name
                 local icon = info and info.icon
                 local count = info and info.applications
@@ -1150,7 +1150,7 @@ function PlexusStatusAurasExt:UNIT_AURA(_, unit, updatedAuras)
                 local source = info and info.sourceUnit
                 local isStealable = info and info.isStealable
                 local spellid = info and info.spellId
-                checkAura(name, isPet, isTarget, buffdebufftype, icon, count, buffType, duration, expirationTime, source, isStealable, spellid)
+                checkAura(name, isPet, isTarget, isBuff, icon, count, buffType, duration, expirationTime, source, isStealable, spellid)
             end
             if guid and numAuras == 0 then
                 unitAuras[guid] = nil
