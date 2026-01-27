@@ -1,3 +1,8 @@
+if Plexus and Plexus:IsRetailWow() then
+    print("PlexusStatusAurasExt is no longer supported for retail WoW. Sorry.")
+    return
+end
+
 --{{{ Libraries
 
 local L = LibStub("AceLocale-3.0"):GetLocale("PlexusStatusAurasExt")
